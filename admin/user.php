@@ -1,13 +1,12 @@
 <?php
 session_start();
 require '../config/config.php';
-// print_r($_SESSION['role']);
-if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['role'] != 1) {
+if(empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
   header('Location: login.php');
-  exit();
 }
-
-
+if($_SESSION['role'] != 1) {
+  header('Location: login.php');
+}
 ?>
 <?php include ('header.php') ?>
     <!-- Main content -->
@@ -29,23 +28,23 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['r
               $offset = ($pagenu-1)*$numOfrecs;
 
               if(empty($_POST['search'])) {
-                $stmt = $conn->prepare("SELECT * FROM posts ORDER BY id DESC");
+                $stmt = $conn->prepare("SELECT * FROM users ORDER BY id DESC");
                 $stmt->execute();
                 $raw_result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
                 $total_pagenu = ceil(count($raw_result) / $numOfrecs);
                 
-                $stmt = $conn->prepare("SELECT * FROM posts ORDER BY id DESC LIMIT $offset,$numOfrecs ");
+                $stmt = $conn->prepare("SELECT * FROM users ORDER BY id DESC LIMIT $offset,$numOfrecs");
                 $stmt->execute();
                 $result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
               }else{
                 $searchKey = $_POST['search'];
-                $stmt = $conn->prepare("SELECT * FROM posts WHERE title LIKE '%$searchKey%' ORDER BY id DESC");
+                $stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE '%$searchKey%' ORDER BY id DESC");
                 $stmt->execute();
                 $raw_result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
                 $total_pagenu = ceil(count($raw_result) / $numOfrecs);
                 
 
-                $stmt = $conn->prepare("SELECT * FROM posts WHERE title LIKE '%$searchKey%' ORDER BY id DESC LIMIT $offset,$numOfrecs ");
+                $stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE '%$searchKey%' ORDER BY id DESC LIMIT $offset,$numOfrecs ");
                 $stmt->execute();
                 $result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
               }
@@ -53,14 +52,15 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['r
               <!-- /.card-header -->
               <div class="card-body">
                 <div>
-                  <a href="add.php" type="button" class="btn btn-success">New Blog Post</a>
+                  <a href="createUser.php" type="button" class="btn btn-success">Create User</a>
                 </div><br>
                 <table class="table table-bordered">
                   <thead>                  
                     <tr>
                       <th style="width: 10px">#</th>
-                      <th>Title</th>
-                      <th>Content</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
                       <th style="width: 40px">Action</th>
                     </tr>
                   </thead>
@@ -72,15 +72,16 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['r
                     foreach($result as $data) {?>
                        <tr>
                       <td><?php echo $i; ?></td>
-                      <td><?php echo $data['title']; ?></td>
-                      <td><?php echo substr($data['content'],0,50); ?></td>
+                      <td><?php echo $data['name']; ?></td>
+                      <td><?php echo substr($data['email'],0,50); ?></td>
+                      <td><?php if($data['role'] == 1){echo 'Admin';}else{echo 'User';} ?></td>
                       <td>
                        <div class="btn-group">
                         <div class="container">
-                          <a href="edit.php?id=<?php echo $data['id']; ?>" type="button" class="btn btn-danger">Edit</a>
+                          <a href="userEdit.php?id=<?php echo $data['id']; ?>" type="button" class="btn btn-danger">Edit</a>
                          </div>
                           <div class="container">
-                            <a href="delete.php?id=<?php echo $data['id']; ?>" type="button" class="btn btn-warning">Delete</a>
+                            <a href="userDelete.php?id=<?php echo $data['id']; ?>" type="button" class="btn btn-warning">Delete</a>
                           </div>
                        </div>
                       </td>

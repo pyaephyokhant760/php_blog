@@ -41,7 +41,7 @@ $result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
 
 
 ?>
-<?php include ('header.html') ?>
+<?php include ('header.php') ?>
     <!-- Main content -->
     <div class="content">
       <div class="container-fluid">

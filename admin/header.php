@@ -25,11 +25,16 @@
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
     </ul>
-
+  <?php
+    $link = $_SERVER['PHP_SELF'];
+    $link_array = explode('/',$link);
+    $page = end($link_array);
+  
+  ?>
     <!-- SEARCH FORM -->
-    <form class="form-inline ml-3">
+    <form class="form-inline ml-3" method="post" action="<?php echo $page == 'index.php' ? 'index.php': 'user.php'?>">
       <div class="input-group input-group-sm">
-        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" name="search">
         <div class="input-group-append">
           <button class="btn btn-navbar" type="submit">
             <i class="fas fa-search"></i>
@@ -68,10 +73,18 @@
                with font-awesome or any other icon font library -->
           
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="index.php" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
                 Blog
+              </p>
+            </a>
+          </li>
+          <li>
+            <a href="user.php" class="nav-link">
+              <i class="fa-solid fa-user text-white"></i>
+              <p>
+                User
               </p>
             </a>
           </li>
