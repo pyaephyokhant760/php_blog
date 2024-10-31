@@ -1,11 +1,17 @@
 <?php
 session_start();
 require '../config/config.php';
-if(empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
+if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['role'] != 1) {
   header('Location: login.php');
+  exit();
 }
-if($_SESSION['role'] != 1) {
-  header('Location: login.php');
+if (isset($_POST["search"])) {
+  setcookie("search", $_POST["search"], time() + (86400 * 30), "/");
+} else {
+  if (empty($_GET["pagenu"])) {
+      unset($_COOKIE["search"]);
+      setcookie("search", "", time() - 3600, "/");
+  }
 }
 ?>
 <?php include ('header.php') ?>
@@ -27,7 +33,7 @@ if($_SESSION['role'] != 1) {
               $numOfrecs = 5;
               $offset = ($pagenu-1)*$numOfrecs;
 
-              if(empty($_POST['search'])) {
+              if(empty($_POST['search']) && empty($_COOKIE['search'])) {
                 $stmt = $conn->prepare("SELECT * FROM users ORDER BY id DESC");
                 $stmt->execute();
                 $raw_result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
@@ -37,7 +43,7 @@ if($_SESSION['role'] != 1) {
                 $stmt->execute();
                 $result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
               }else{
-                $searchKey = $_POST['search'];
+                $searchKey = isset($_POST["search"]) ? $_POST["search"] : (isset($_COOKIE["search"]) ? $_COOKIE["search"] : '');
                 $stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE '%$searchKey%' ORDER BY id DESC");
                 $stmt->execute();
                 $raw_result = $stmt->fetchAll(PDO::FETCH_DEFAULT);

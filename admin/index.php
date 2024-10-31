@@ -6,6 +6,15 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['r
   header('Location: login.php');
   exit();
 }
+if (isset($_POST["search"])) {
+  setcookie("search", $_POST["search"], time() + (86400 * 30), "/");
+} else {
+  if (empty($_GET["pagenu"])) {
+      unset($_COOKIE["search"]);
+      setcookie("search", "", time() - 3600, "/");
+  }
+}
+
 
 
 ?>
@@ -28,7 +37,7 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['r
               $numOfrecs = 5;
               $offset = ($pagenu-1)*$numOfrecs;
 
-              if(empty($_POST['search'])) {
+              if(empty($_POST['search']) && empty($_COOKIE['search'])) {
                 $stmt = $conn->prepare("SELECT * FROM posts ORDER BY id DESC");
                 $stmt->execute();
                 $raw_result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
@@ -38,7 +47,7 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['r
                 $stmt->execute();
                 $result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
               }else{
-                $searchKey = $_POST['search'];
+                $searchKey = isset($_POST["search"]) ? $_POST["search"] : (isset($_COOKIE["search"]) ? $_COOKIE["search"] : '');
                 $stmt = $conn->prepare("SELECT * FROM posts WHERE title LIKE '%$searchKey%' ORDER BY id DESC");
                 $stmt->execute();
                 $raw_result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
