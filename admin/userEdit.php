@@ -45,6 +45,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC); // Use FETCH_ASSOC for cleaner outp
 $stmt = $conn->prepare("SELECT * FROM users WHERE id=" . $_GET['id']);
 $stmt->execute();
 $result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
+
 ?>
 <?php include('header.php') ?>
 <!-- Main content -->
