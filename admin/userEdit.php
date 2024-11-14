@@ -7,30 +7,36 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['logged_in']) || $_SESSION['r
 }
 
 if ($_POST) {
-    if (empty($_POST['name']) || empty($_POST['email']) || empty($_FILES['password']) || strlen($_POST['password']) < 4) {
+    if (empty($_POST['name']) || empty($_POST['email']) ) {
         if (empty($_POST['name'])) {
             $nameError = 'Name Could Not Be Null';
         }
         if (empty($_POST['email'])) {
             $emailError = 'Email Could Not Be Null';
         }
-        if (empty($_FILES['password'])) {
-            $passwordError = 'Password Could Not Be Null';
-        }
-        if (strlen($_POST['password']) < 4) {
-            $passwordError = 'Password Should Be 4 Character at least';
-        }
-    } else {
+    }elseif (!empty($_POST['password']) && strlen($_POST['password']) < 4){
+        $passwordError = 'Password Should Be 4 Character at least';
+    }else {
         $id = $_POST['id'];
         $name = $_POST['name'];
         $email = $_POST['email'];
+        $password = password_hash($_POST['password'],PASSWORD_DEFAULT);
         $role = ($_POST['role'] == 'admin') ? 1 : 0;
 
-        // Use placeholders to prevent SQL injection
-        $stmt = $conn->prepare("UPDATE users SET name='$name',email='$email',role='$role' WHERE id='$id'");
-        $result = $stmt->execute();
-        if ($result) {
-            echo "<script>alert('Success');window.location.href='user.php';</script>";
+
+
+        if ($password != null) {
+            $stmt = $conn->prepare("UPDATE users SET name='$name',email='$email',role='$role',password='$password' WHERE id='$id'");
+            $result = $stmt->execute();
+            if ($result) {
+                echo "<script>alert('Success');window.location.href='user.php';</script>";
+            }
+        } else {
+            $stmt = $conn->prepare("UPDATE users SET name='$name',email='$email',role='$role' WHERE id='$id'");
+            $result = $stmt->execute();
+            if ($result) {
+                echo "<script>alert('Success');window.location.href='user.php';</script>";
+            }
         }
     }
 }
@@ -58,12 +64,20 @@ $result = $stmt->fetchAll(PDO::FETCH_DEFAULT);
                         <form action="" method="post">
                             <input type="hidden" name="id" value="<?php echo $result[0]['id']; ?>">
                             <div class="form-group">
-                                <label for="">Name</label><p style="color:red"><?php echo empty($nameError) ? '' : '*'.$nameError ?></p>
-                                <input type="text" name="name" value="<?php echo $result[0]['name']; ?>" class="form-control" required>
+                                <label for="">Name</label>
+                                <p style="color:red"><?php echo empty($nameError) ? '' : '*' . $nameError ?></p>
+                                <input type="text" name="name" value="<?php echo $result[0]['name']; ?>" class="form-control" >
                             </div>
                             <div class="form-group">
-                                <label for="">Email</label><p style="color:red"><?php echo empty($emailError) ? '' : '*'.$emailError ?></p>
-                                <input type="email" name="email" class="form-control" required value="<?php echo $result[0]['email']; ?>">
+                                <label for="">Email</label>
+                                <p style="color:red"><?php echo empty($emailError) ? '' : '*' . $emailError ?></p>
+                                <input type="email" name="email" class="form-control"  value="<?php echo $result[0]['email']; ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="">Password</label>
+                                <p style="color:red"><?php echo empty($passwordError) ? '' : '*' . $passwordError ?></p>
+                                <span style="font-size: 10px">The user already has a password</span>
+                                <input type="password" name="password" class="form-control">
                             </div>
                             <div class="form-group">
                                 <div class="form-check">
